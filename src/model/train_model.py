@@ -1,65 +1,62 @@
-import os
 import numpy as np
+from tensorflow.keras.models import Sequential, load_model
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
+from tensorflow.keras.optimizers import Adam
 import cv2
-from sklearn.model_selection import train_test_split
 
-# Caminho para o dataset
-input_dir = 'data/raw/libras_dataset/'  # Caminho onde o dataset foi descompactado
-output_dir = 'data/processed/libras_dataset/'
+# Carregar os dados (substitua pelos seus próprios caminhos para os dados)
+X_train = np.load('data/processed/libras_dataset/X_train.npy')
+X_val = np.load('data/processed/libras_dataset/X_val.npy')
+y_train = np.load('data/processed/libras_dataset/y_train.npy')
+y_val = np.load('data/processed/libras_dataset/y_val.npy')
 
-if not os.path.exists(output_dir):
-    os.makedirs(output_dir)
+# Definir o modelo (exemplo simples de CNN)
+model = Sequential([
+    Conv2D(32, (3, 3), activation='relu', input_shape=(50, 50, 1)),
+    MaxPooling2D((2, 2)),
+    Flatten(),
+    Dense(128, activation='relu'),
+    Dense(len(np.unique(y_train)), activation='softmax')  # Número de classes
+])
 
-# Função para carregar e pré-processar as imagens
-def load_and_process_data():
-    images = []
-    labels = []
-    label_dict = {}  # Dicionário para mapear rótulos
-    label_counter = 0
+# Compilar o modelo
+model.compile(optimizer=Adam(), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
-    # Loop para carregar as imagens de cada classe
-    for label_folder in os.listdir(input_dir):
-        label_path = os.path.join(input_dir, label_folder)
-        
-        if os.path.isdir(label_path):
-            if label_folder not in label_dict:
-                label_dict[label_folder] = label_counter
-                label_counter += 1
+# Treinar o modelo
+model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_val, y_val))
 
-            # Loop para carregar cada imagem dentro da pasta da classe
-            for img_name in os.listdir(label_path):
-                img_path = os.path.join(label_path, img_name)
-                img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+# Salvar o modelo
+model.save('libras_model.h5')
 
-                # Redimensionar para 64x64
-                img_resized = cv2.resize(img, (64, 64)) / 255.0  # Normalização de pixels
+# Após o treinamento, você pode carregar o modelo e fazer previsões
 
-                # Adicionar imagem e rótulo à lista
-                images.append(img_resized)
-                labels.append(label_dict[label_folder])
+# Carregar o modelo salvo
+model = load_model('libras_model.h5')
 
-    # Converter listas em arrays numpy
-    images = np.array(images)
-    labels = np.array(labels)
+# Função para fazer previsão com o modelo treinado
+def predict_image(image_path):
+    # Carregar a imagem para previsão
+    img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    
+    # Verifique se a imagem foi carregada corretamente
+    if img is None:
+        print(f"Erro: Não foi possível carregar a imagem {image_path}")
+        return None
+    
+    img = cv2.resize(img, (50, 50))  # Redimensionar para o tamanho correto
+    img = np.expand_dims(img, axis=-1)  # Adicionar a dimensão do canal
+    img = np.expand_dims(img, axis=0)  # Adicionar a dimensão do batch
+    img = img / 255.0  # Normalizar a imagem
+    
+    # Fazer a previsão
+    prediction = model.predict(img)
 
-    # Adicionar uma dimensão para as imagens (necessário para a CNN)
-    images = np.expand_dims(images, axis=-1)
+    # Obter a classe prevista
+    predicted_class = np.argmax(prediction)
+    return predicted_class
 
-    return images, labels, label_dict
-
-# Carregar e processar os dados
-X, y, label_dict = load_and_process_data()
-
-# Dividir os dados em treino e teste (80% treino, 20% teste)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Salvar os dados processados em formato .npy
-np.save(os.path.join(output_dir, 'X_train.npy'), X_train)
-np.save(os.path.join(output_dir, 'X_test.npy'), X_test)
-np.save(os.path.join(output_dir, 'y_train.npy'), y_train)
-np.save(os.path.join(output_dir, 'y_test.npy'), y_test)
-
-# Salvar o dicionário de labels
-np.save(os.path.join(output_dir, 'label_dict.npy'), label_dict)
-
-print("Pré-processamento concluído!")
+# Exemplo de uso da função de previsão (substitua pelo caminho da sua imagem)
+img_path = 'data/raw/libras_dataset/Fold1/D/0.PNG'  # Substitua pelo caminho correto da imagem
+predicted_class = predict_image(img_path)
+if predicted_class is not None:
+    print(f"A classe prevista para a imagem é: {predicted_class}")
