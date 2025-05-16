@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # LibrasVision-  Tradutor de Libras com Visão Computacional
 
 Este projeto tem como objetivo o desenvolvimento de um tradutor de Libras (Língua Brasileira de Sinais) utilizando **visão computacional** e **machine learning**, com o intuito de facilitar a comunicação entre pessoas surdas e ouvintes. O sistema será capaz de identificar sinais em tempo real através da **webcam** do usuário e traduzi-los para **texto ou fala**, promovendo inclusão social e acessibilidade.
@@ -55,7 +54,3 @@ Este projeto está licenciado sob a **GNU Affero General Public License v3.0** -
 ## Contato
 
 Se tiver alguma dúvida ou sugestão, entre em contato comigo através do meu perfil no GitHub ou via e-mail: **carlos.h.oliver@gmail.com**.
-=======
-# Libras Translator with Computer Vision
-This project aims to develop a real-time Brazilian Sign Language (Libras) translator using computer vision and machine learning.
->>>>>>> 3b8d1f9 (Initial commit with project structure)
