@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interface Libras</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Reconhecimento de Gestos em Libras</h1>
+        <p>Utilize a interface abaixo para carregar uma imagem e fazer a previsão do gesto.</p>
+        
+        <!-- Formulário para upload da imagem -->
+        <form action="/predict" method="POST" enctype="multipart/form-data">
+            <label for="image">Escolha uma imagem:</label>
+            <input type="file" id="image" name="image" required>
+            <button type="submit">Fazer Previsão</button>
+        </form>
+
+        <!-- Icone do LinkedIn -->
+        <div>
+            <a href="https://www.linkedin.com/in/xiruzim/" target="_blank">
+                <img src="{{ url_for('static', filename='images/linkedin_icon.png') }}" alt="LinkedIn" width="50">
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        <p>Desenvolvido por Carlos Henrique C.de Oliveira - Engenharia da Computação 2025</p>
+    </footer>
+
+</body>
+</html>
